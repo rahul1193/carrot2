@@ -12,14 +12,7 @@
 
 package org.carrot2.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.carrot2.util.MapUtils;
@@ -199,7 +192,7 @@ public final class Document implements Cloneable
      * Creates a document with the provided <code>title</code>, <code>summary</code>,
      * <code>contentUrl</code> and <code>language</code> and ID. IDs should be unique
      * for clustering. If all documents passed for clustering have null IDs then
-     * IDs are automatically generated. 
+     * IDs are automatically generated.
      */
     public Document(String title, String summary, String contentUrl, LanguageCode language, String id)
     {
@@ -234,7 +227,7 @@ public final class Document implements Cloneable
      * {@link ProcessingResult#deserialize(CharSequence)} methods, the original document
      * identifiers are preserved, which means they may be non-unique or not present at all.
      * </p>
-     * 
+     *
      * @return identifier of this document, possibly <code>null</code>
      */
     @JsonProperty("id")
@@ -255,7 +248,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets this document's {@link #TITLE} field.
-     * 
+     *
      * @param title title to set
      * @return this document for convenience
      */
@@ -277,7 +270,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets this document's {@link #SUMMARY} field.
-     * 
+     *
      * @param summary summary to set
      * @return this document for convenience
      */
@@ -299,7 +292,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets this document's {@link #CONTENT_URL} field.
-     * 
+     *
      * @param contentUrl content URL to set
      * @return this document for convenience
      */
@@ -321,7 +314,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets this document's {@link #SOURCES} field.
-     * 
+     *
      * @param sources the sources list to set
      * @return this document for convenience
      */
@@ -341,7 +334,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets this document's {@link #LANGUAGE}.
-     * 
+     *
      * @param language the language to set
      * @return this document for convenience
      */
@@ -352,7 +345,7 @@ public final class Document implements Cloneable
 
     /**
      * Returns this document's {@link #SCORE}.
-     * 
+     *
      * @return this document's {@link #SCORE}.
      */
     @Attribute(name = "score", required = false)
@@ -363,7 +356,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets this document's {@link #SCORE}.
-     * 
+     *
      * @param score the {@link #SCORE} to set
      * @return this document for convenience.
      */
@@ -467,7 +460,7 @@ public final class Document implements Cloneable
 
     /**
      * Returns all fields of this document. The returned map is unmodifiable.
-     * 
+     *
      * @return all fields of this document
      */
     public Map<String, Object> getFields()
@@ -478,7 +471,7 @@ public final class Document implements Cloneable
     /**
      * Returns value of the specified field of this document. If no field corresponds to
      * the provided <code>name</code>, <code>null</code> will be returned.
-     * 
+     *
      * @param name of the field to be returned
      * @return value of the field or <code>null</code>
      */
@@ -493,7 +486,7 @@ public final class Document implements Cloneable
 
     /**
      * Sets a field in this document.
-     * 
+     *
      * @param name of the field to set
      * @param value value of the field
      * @return this document for convenience
@@ -506,10 +499,10 @@ public final class Document implements Cloneable
         }
         return this;
     }
-    
+
     /**
      * Creates a <strong>shallow</strong> clone of itself. The identifier
-     * and the fields map is copied but values inside fields are not cloned. 
+     * and the fields map is copied but values inside fields are not cloned.
      */
     @Override
     public Document clone()
@@ -524,7 +517,7 @@ public final class Document implements Cloneable
      * Assigns sequential identifiers to the provided <code>documents</code>. If any
      * document in the set has a non-empty identifier, no identifiers will be generated at
      * all.
-     * 
+     *
      * @param documents documents to assign identifiers to.
      * @throws IllegalArgumentException Thrown if the collection of documents already contains
      *              identifiers and they are not unique.
@@ -549,22 +542,16 @@ public final class Document implements Cloneable
             if (hadIds)
             {
                 final HashSet<String> ids = Sets.newHashSet();
-                for (Document doc : documents)
-                {
-                    String id = doc.getStringId();
-                    if (!ids.add(id) && id != null)
-                    {
-                      throw new IllegalArgumentException(
-                          "Identifiers must be unique, duplicated identifier: " + id + 
-                          " [existing: " + ids.toString() + "]");
-                    }
-                }
 
-                if (ids.contains(null))
-                {
-                    throw new IllegalArgumentException(
-                        "Null identifiers cannot be mixed with existing non-null identifiers: " +
-                        " [existing: " + ids.toString() + "]");
+                Iterator<Document> iterator = documents.iterator();
+                while (iterator.hasNext()){
+
+                    Document doc = iterator.next();
+                    String id = doc.getStringId();
+
+                    if (id != null && !ids.add(id)) {
+                        iterator.remove();
+                    }
                 }
             }
             else
@@ -583,7 +570,7 @@ public final class Document implements Cloneable
     /**
      * Transforms a {@link Document} to its identifier returned by
      * {@link Document#getId()}.
-     * 
+     *
      * @deprecated Please use #getStringId() directly or use your own {@link Function}
      *             implementation.
      */
@@ -604,7 +591,7 @@ public final class Document implements Cloneable
     /**
      * Compares {@link Document}s by their identifiers {@link #getId()}, which effectively
      * gives the original order in which they were returned by the document source.
-     * 
+     *
      * @deprecated semantics of the identifiers depends on the document source, please
      *             roll your own comparator that is aware of the actual id semantics.
      */
@@ -613,7 +600,7 @@ public final class Document implements Cloneable
 
     /**
      * Adds a serialization listener to this document.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addSerializationListener(IDocumentSerializationListener listener)
@@ -637,7 +624,7 @@ public final class Document implements Cloneable
          * Called before a {@link Document} gets serialized to XML or JSON. Specific
          * implementations may want to modify some properties of the document before it
          * gets serialized
-         * 
+         *
          * @param document the documents being serialized. Note: changes to the document
          *            will not be undone after serialization completes.
          * @param otherFieldsForSerialization custom fields that are about to be
